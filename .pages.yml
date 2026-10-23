@@ -1,0 +1,120 @@
+media:
+  input: assets
+  output: /assets
+content:
+  - name: site-settings
+    label: Website settings and links
+    type: file
+    path: content/site.json
+    format: json
+    fields:
+      - name: corporationName
+        label: Corporation name
+        type: string
+      - name: discordInviteUrl
+        label: Actual Discord invite URL
+        type: string
+        description: Leave blank until the invitation is confirmed.
+      - name: zkillboardCorporationUrl
+        label: Corporation zKillboard URL
+        type: string
+        description: Full https://zkillboard.com/corporation/NUMERIC_ID/ URL.
+      - name: publicCalendarEmbedUrl
+        label: Public Google Calendar embed URL
+        type: string
+        description: Optional; use only a PUBLIC calendar. Leave blank if using the native event calendar.
+      - name: recruitmentVideoUrl
+        label: Recruitment film YouTube URL
+        type: string
+        description: Optional. Paste the published YouTube watch URL when the film is ready.
+      - name: youtubeChannelUrl
+        label: Official YouTube channel URL
+        type: string
+        description: Optional. Paste a confirmed channel link such as https://www.youtube.com/@YourChannel.
+      - name: eventsPageUrl
+        label: Discord scheduled events link
+        type: string
+        description: Optional link to published community event information.
+  - name: news
+    label: News and dispatches
+    type: file
+    path: content/news.json
+    format: json
+    list: true
+    fields:
+      - name: id
+        label: Unique identifier
+        type: string
+        description: Short identifier, e.g. october-mining-update
+        required: true
+      - name: title
+        type: string
+        required: true
+      - name: date
+        label: Date (ISO format)
+        type: string
+        description: Example 2026-10-21
+      - name: category
+        type: select
+        options:
+          values: [News, Industry, Community, Events]
+      - name: summary
+        type: text
+      - name: body
+        label: Full article
+        type: text
+      - name: image
+        label: Article cover image
+        type: image
+        description: Select an existing image or upload one. Optional.
+      - name: published
+        type: boolean
+        description: Only entries with published=true appear on the public site
+  - name: events
+    label: Fleet and community events
+    type: file
+    path: content/events.json
+    format: json
+    list: true
+    fields:
+      - name: title
+        type: string
+        required: true
+      - name: start
+        label: Event start — ISO timestamp including timezone
+        type: string
+        description: Example 2026-11-03T19:00:00-06:00
+      - name: end
+        label: End timestamp (optional)
+        type: string
+      - name: type
+        type: select
+        options:
+          values: [Mining, Industry, PvP, Exploration, Community, Other]
+      - name: description
+        type: text
+      - name: url
+        label: Event details / RSVP URL
+        type: string
+  - name: roadmap
+    label: Future operations roadmap
+    type: file
+    path: content/plans.json
+    format: json
+    list: true
+    fields:
+      - name: title
+        type: string
+        required: true
+      - name: description
+        type: text
+      - name: status
+        type: select
+        options:
+          values: [Proposed, In Progress, Completed]
+      - name: target
+        label: Target date or milestone (optional)
+        type: string
+      - name: published
+        type: boolean
+        description: Only published items appear on the public roadmap
