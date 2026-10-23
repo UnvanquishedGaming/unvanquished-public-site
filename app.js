@@ -19,6 +19,24 @@ const parseDate = s => { const d = new Date(s); return Number.isFinite(d.getTime
 const sameDay = (a,b) => a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const inUrl = value => value && safeLink(value) || null;
 
+// Display a limited subset of Markdown from CMS fields without executing HTML.
+// Escape the original text first; only then add our own paragraph and bold tags.
+function safeArticleMarkup(value) {
+  const source = String(value ?? '').replace(/\r\n?/g, '\n').trim();
+  if (!source) return '';
+  return source.split(/\n\s*\n/).filter(Boolean).map(paragraph => {
+    const formatted = esc(paragraph)
+      .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    return `<p>${formatted}</p>`;
+  }).join('');
+}
+function newsExcerpt(post) {
+  const raw = String(post.summary || post.body || '').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
+  return raw.length > 180 ? `${raw.slice(0, 177).trimEnd()}…` : raw;
+}
+
+
 // This site is read-only for visitors. Data comes from JSON files edited by approved GitHub/CMS editors.
 async function getData(path, fallback) {
   try {
@@ -65,13 +83,13 @@ function renderNews(news) {
     if(!shown.length){list.innerHTML=emptyMessage(published.length?'NO MATCHING POSTS.':'NO POSTS YET.',published.length?'Try a different category or search term.':'News and stories will appear here when the community publishes them.');return;}
     list.innerHTML=shown.map(p=>{
       const cover=safeImage(p.image);
-      return `<button type="button" class="news-article" data-post-id="${esc(p.id||p.title)}">${cover?`<img src="${esc(cover)}" alt="" loading="lazy">`:''}<span class="article-body"><small>${esc(p.category||'News')} // ${esc(dateFmt(new Date(p.date)))}</small><h3>${esc(p.title)}</h3><p>${esc(p.summary||'')}</p><span class="article-more">READ ARTICLE ↗</span></span></button>`;
+      return `<button type="button" class="news-article" data-post-id="${esc(p.id||p.title)}">${cover?`<img src="${esc(cover)}" alt="" loading="lazy">`:''}<span class="article-body"><small>${esc(p.category||'News')} // ${esc(dateFmt(new Date(p.date)))}</small><h3>${esc(p.title)}</h3><p>${esc(newsExcerpt(p))}</p><span class="article-more">READ ARTICLE ↗</span></span></button>`;
     }).join('');
     $$('.news-article').forEach(btn=>btn.addEventListener('click',()=>{
       const p=shown.find(item=>String(item.id||item.title)===btn.dataset.postId); if(!p)return;
       const dialog=$('#article-dialog'),target=$('#article-content'),cover=safeImage(p.image);
-      target.innerHTML=`<span class="article-date">${esc(p.category||'News')} // ${esc(dateFmt(new Date(p.date)))}</span><h2>${esc(p.title)}</h2>${cover?`<img src="${esc(cover)}" alt="" />`:''}<p class="article-text"></p>`;
-      target.querySelector('.article-text').textContent=p.body||p.summary||'';
+      target.innerHTML=`<span class="article-date">${esc(p.category||'News')} // ${esc(dateFmt(new Date(p.date)))}</span><h2>${esc(p.title)}</h2>${cover?`<img src="${esc(cover)}" alt="" />`:''}<div class="article-text"></div>`;
+      target.querySelector('.article-text').innerHTML=safeArticleMarkup(p.body||p.summary||'');
       if(dialog?.showModal)dialog.showModal();
     }));
   }
