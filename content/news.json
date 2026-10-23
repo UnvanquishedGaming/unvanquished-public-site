@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "website-now-live",
+    "title": "The Unvanquished Website Is Now Live",
+    "date": "2026-10-22",
+    "category": "News",
+    "body": "The Unvanquished has a new home online!\n\nOur community website is now online at **unvanquishedgaming.com**.\n\nWe're building a place where members can stay connected, catch up on community news, find information about upcoming events, and get to know the people behind The Unvanquished.\n\nThe website is still a work in progress. Over time, we'll be adding member profiles, community stories, videos, and more useful features.\n\nWhether you're mining in New Eden, exploring distant systems, or playing something completely different with friends, we're building this website for our community.\n\n**Don't die alone when you can do it with friends.**\n\nFight together. Build together. Laugh together.",
+    "image": "/assets/Screenshot 2026-10-22 203523.png",
+    "published": true
+  }
+]
