@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<title>Forum Moderation | The Unvanquished</title>
+<link href="styles.css" rel="stylesheet"><link href="forum-admin.css" rel="stylesheet">
+<script src="forum-admin.js" defer></script></head>
+<body><main class="mod-shell">
+<p class="mod-eyebrow">THE UNVANQUISHED // SITE ADMINISTRATION</p><h1>FORUM <em>MODERATION</em></h1>
+<p class="mod-help">Remove unwanted discussions or replies. This page has no public navigation link. Keep your moderator key private.</p>
+<form id="mod-login" autocomplete="off">
+<label for="mod-key">Moderator key</label>
+<input id="mod-key" type="password" minlength="32" required autocomplete="off" spellcheck="false">
+<button type="submit">UNLOCK MODERATION</button>
+</form>
+<div id="mod-controls" hidden>
+<div class="mod-toolbar"><button id="mod-refresh">REFRESH DISCUSSIONS</button><button id="mod-lock">LOCK</button></div>
+<div id="mod-topics"></div>
+<div id="mod-thread" hidden><button id="mod-back">← BACK TO DISCUSSIONS</button><div id="mod-topic-detail"></div><div id="mod-replies"></div></div>
+</div>
+<p role="status" aria-live="polite" id="mod-status">Only the site administrator should use this page.</p>
+<p class="mod-footer"><a href="/forums">← Return to community forums</a></p>
+</main></body></html>
