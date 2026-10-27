@@ -61,13 +61,40 @@ function intro() {
 }
 
 function eventsSorted(list) { return (Array.isArray(list) ? list : []).filter(e => e && parseDate(e.start) && e.title).sort((a,b)=>new Date(a.start)-new Date(b.start)); }
+function localDayISO(d) { return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
+function isValidOfficialEvent(e) {
+  if (!e || !e.allDay || !/^\d{4}-\d{2}-\d{2}$/.test(e.startDate||'') || !/^\d{4}-\d{2}-\d{2}$/.test(e.endDate||'') || e.endDate<e.startDate || !e.title) return false;
+  try { const u=new URL(e.url);return u.protocol==='https:' && ['www.eveonline.com','eveonline.com'].includes(u.hostname) && u.pathname.startsWith('/news/view/'); }
+  catch {return false;}
+}
+async function getOfficialEvents() {
+  try {
+    const r=await fetch('/.netlify/functions/eve-official-events',{headers:{Accept:'application/json'}});
+    if (!r.ok) return [];
+    const data=await r.json();
+    return Array.isArray(data.events) ? data.events.filter(isValidOfficialEvent).slice(0,40) : [];
+  } catch {return [];} // Preserve community events when the official feed is unavailable.
+}
+function combinedCalendarEvents(community, official) {
+  const seen=new Set();
+  return [...(Array.isArray(community)?community:[]),...(Array.isArray(official)?official:[])].filter(e=>{
+    if (!e || !e.title || !parseDate(e.start)) return false;
+    const key=(e.url||'').replace(/\/$/,'').toLowerCase();
+    if (key && seen.has(key)) return false;
+    if (key) seen.add(key);
+    return true;
+  });
+}
 function postsSorted(list) { return (Array.isArray(list) ? list : []).filter(p => p && p.title && p.published === true && parseDate(p.date)).sort((a,b)=>new Date(b.date)-new Date(a.date)); }
 function plansFiltered(list) { return (Array.isArray(list) ? list : []).filter(p=>p && p.title && p.published === true); }
 
 function renderHome(events, posts, plans) {
   const now = new Date();
-  const upcoming = eventsSorted(events).filter(e=>new Date(e.start) >= new Date(now.getTime()-3600_000)).slice(0,2);
-  if ($('#home-events')) $('#home-events').innerHTML = upcoming.length ? upcoming.map(e => `<p><strong>${esc(e.title)}</strong><br><small>${esc(dateFmt(new Date(e.start),{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</small></p>`).join('') : '<p>No events have been posted yet. Check Discord for spontaneous plans.</p>';
+  const upcoming = eventsSorted(events).filter(e=>e.allDay ? (e.endDate||e.startDate)>=localDayISO(now) : new Date(e.start) >= new Date(now.getTime()-3600_000)).slice(0,2);
+  if ($('#home-events')) $('#home-events').innerHTML = upcoming.length ? upcoming.map(e => {
+    const when=e.allDay ? `${e.startDate}${e.endDate!==e.startDate?' – '+e.endDate:''} (all day)` : dateFmt(new Date(e.start),{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    return `<p><strong>${esc(e.title)}</strong><br><small>${esc(when)}</small></p>`;
+  }).join('') : '<p>No events have been posted yet. Check Discord for spontaneous plans.</p>';
   const latest = postsSorted(posts)[0];
   if ($('#home-news')) $('#home-news').innerHTML = latest ? `<p><strong>${esc(latest.title)}</strong><br><small>${esc(dateFmt(new Date(latest.date)))}</small></p>` : '<p>No news published yet. Updates will appear here as they’re posted.</p>';
   const openPlans = plansFiltered(plans).filter(p=>p.status !== 'Completed');
@@ -105,15 +132,35 @@ function renderNews(news) {
 function renderCalendar(events, config) {
   const grid=$('#calendar-grid'); if(!grid)return;
   const data=eventsSorted(events);
+  let sourceFilter='all';
+  const layout=document.querySelector('.calendar-layout');
+  if(layout){
+    const filters=document.createElement('div');filters.className='filter-pills calendar-source-filters';
+    for(const [key,label] of [['all','ALL EVENTS'],['official','OFFICIAL EVE'],['community','COMMUNITY']]){
+      const button=document.createElement('button');button.type='button';button.textContent=label;
+      if(key==='all')button.classList.add('selected');
+      button.addEventListener('click',()=>{sourceFilter=key;filters.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b===button));draw();});
+      filters.append(button);
+    }
+    layout.before(filters);
+  }
   const today=new Date(); let showing=new Date(today.getFullYear(),today.getMonth(),1),selected=new Date(today.getFullYear(),today.getMonth(),today.getDate());
-  function dayEvents(d){return data.filter(e=>sameDay(new Date(e.start),d));}
+  function dayEvents(d){
+    const day=localDayISO(d);
+    return data.filter(e=>{
+      if (sourceFilter==='official' && e.source!=='EVE Online') return false;
+      if (sourceFilter==='community' && e.source==='EVE Online') return false;
+      if(e.allDay && e.startDate && e.endDate) return day>=e.startDate && day<=e.endDate;
+      return sameDay(new Date(e.start),d);
+    });
+  }
   function updateAside(){
     const title=$('#selected-day-title'),aside=$('#calendar-day-events'); if(!title||!aside)return;
     title.textContent=dateFmt(selected,{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
     const items=dayEvents(selected);
     aside.innerHTML=items.length?items.map(e=>{
       const d=new Date(e.start),end=parseDate(e.end),href=safeLink(e.url);
-      const time=dateFmt(d,{hour:'numeric',minute:'2-digit'})+(end?' – '+dateFmt(end,{hour:'numeric',minute:'2-digit'}):'');
+      const time=e.allDay ? `ALL DAY${e.endDate!==e.startDate?' • '+e.startDate+' – '+e.endDate:''}` : dateFmt(d,{hour:'numeric',minute:'2-digit'})+(end?' – '+dateFmt(end,{hour:'numeric',minute:'2-digit'}):'');
       return `<div class="event-item"><small>${esc(e.type||'Community')} // ${esc(time)}</small><b>${esc(e.title)}</b><p>${esc(e.description||'')}</p>${href?`<a class="small-link" href="${esc(href)}" rel="noopener noreferrer" target="_blank">EVENT DETAILS ↗</a>`:''}</div>`;
     }).join(''):'<div class="empty-state"><h3>NOTHING SCHEDULED.</h3><p>Nothing is scheduled for this date. Check Discord for spontaneous activities.</p></div>';
   }
@@ -243,9 +290,10 @@ function renderEnlist(config){
 
 (async function init(){
   intro();
-  const [config,news,events,plans]=await Promise.all([
-    getData('site.json',{}),getData('news.json',[]),getData('events.json',[]),getData('plans.json',[])
+  const [config,news,communityEvents,plans,officialEvents]=await Promise.all([
+    getData('site.json',{}),getData('news.json',[]),getData('events.json',[]),getData('plans.json',[]),(['index','calendar'].includes(document.body.dataset.page) ? getOfficialEvents() : Promise.resolve([]))
   ]);
+  const events=combinedCalendarEvents(communityEvents,officialEvents);
   renderMediaLinks(config);
   const page=document.body.dataset.page;
   if(page==='index')renderHome(events,news,plans);
