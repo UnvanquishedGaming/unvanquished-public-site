@@ -5,3 +5,13 @@
 
 [functions]
   directory = "netlify/functions"
+
+[[redirects]]
+  from = "/forums"
+  to = "/forums.html"
+  status = 200
+
+[[redirects]]
+  from = "/forums/"
+  to = "/forums.html"
+  status = 200
