@@ -1,0 +1,7 @@
+{
+  "name": "the-unvanquished-public-site",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {"build": "node scripts/build-site.mjs"},
+  "dependencies": {"@netlify/blobs": "11.1.6"}
+}
