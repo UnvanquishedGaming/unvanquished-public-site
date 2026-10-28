@@ -50,9 +50,15 @@ async function thread(id){
 $('#mod-login').onsubmit=async e=>{
  e.preventDefault();key=$('#mod-key').value.trim();$('#mod-key').value='';
  if(key.length<32){status('Moderator key must be at least 32 characters.');key='';return;}
- $('#mod-login').hidden=true;$('#mod-controls').hidden=false;
- try{await refresh();status('Enter moderation key to authorize deletion. Discussions loaded.');}
- catch(e){status(e.message);$('#mod-login').hidden=false;$('#mod-controls').hidden=true;key='';}
+ try{
+  const response=await fetch('/api/forum-admin',{method:'POST',
+   headers:{'content-type':'application/json',authorization:'Bearer '+key},
+   body:JSON.stringify({action:'verify'})});
+  const data=await response.json().catch(()=>({error:'Unable to verify moderator key.'}));
+  if(!response.ok||!data.verified)throw Error(data.error||'Moderator key not accepted.');
+  $('#mod-login').hidden=true;$('#mod-controls').hidden=false;
+  await refresh();status('Moderator access verified. You can review and remove discussions.');
+ }catch(e){status(e.message);$('#mod-login').hidden=false;$('#mod-controls').hidden=true;key='';}
 };
 $('#mod-lock').onclick=()=>{key='';current=null;$('#mod-controls').hidden=true;$('#mod-login').hidden=false;status('Moderation locked.');};
 $('#mod-refresh').onclick=()=>refresh().catch(e=>status(e.message));
