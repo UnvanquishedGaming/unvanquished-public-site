@@ -44,6 +44,7 @@ export default async function handler(request){
  }catch{return fail('Invalid request body.');}
  if(!payload || typeof payload!=='object')return fail('Invalid request body.');
  const {action,topicId,replyId}=payload;
+ if(action==='verify')return response({ok:true,verified:true});
  if(!UUID.test(topicId||''))return fail('Invalid discussion ID.');
  if(!['delete-topic','delete-reply'].includes(action))return fail('Unknown action.');
  if(action==='delete-reply'&&!UUID.test(replyId||''))return fail('Invalid reply ID.');
