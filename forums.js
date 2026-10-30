@@ -89,7 +89,7 @@ $('#forum-form').onsubmit=async e=>{
  const button=$('#forum-submit');button.disabled=true;
  try{
   const result=await api('/api/forum',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
-  $('#forum-dialog').close();const all=await api('/api/forum');state.topics=all.topics||[];
+  $('#forum-dialog').close();const all=await api('/api/forum');state.topics=all.topics||[];render();
   if(payload.type==='topic')await openTopic(result.id);else await openTopic(payload.topicId);
   note('Message published.');
  }catch(err){error.textContent=err.message;error.hidden=false;}
