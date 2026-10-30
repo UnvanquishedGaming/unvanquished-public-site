@@ -44,6 +44,38 @@ export default async function handler(request){
  if(!payload || typeof payload!=='object')return fail('Invalid request body.');
  const {action,topicId,replyId}=payload;
  if(action==='verify')return response({ok:true,verified:true});
+ if(action==='export'){
+   try{
+     const blobs=store();
+     const [topicListing,replyListing]=await Promise.all([
+       blobs.list({prefix:'topic/'}),
+       blobs.list({prefix:'reply/'})
+     ]);
+     const entries=[...topicListing.blobs,...replyListing.blobs];
+     // Keep a single response comfortably inside serverless payload limits.
+     if(entries.length>500)
+       return fail('Backup exceeds safe export size; use a bulk storage export.',409);
+     const records=[];
+     for(let i=0;i<entries.length;i+=25){
+       const batch=entries.slice(i,i+25);
+       records.push(...await Promise.all(batch.map(async item=>({
+         key:item.key,data:await blobs.get(item.key,{type:'json',consistency:'strong'})
+       }))));
+     }
+     const backup={
+       schema:'unvanquished-forum-v1',
+       exportedAt:new Date().toISOString(),
+       topics:records.filter(r=>r.key.startsWith('topic/') && r.data?.kind==='topic').map(r=>r.data),
+       replies:records.filter(r=>r.key.startsWith('reply/') && r.data?.kind==='reply').map(r=>r.data)
+     };
+     if(JSON.stringify(backup).length>2500000)
+       return fail('Backup too large for direct download; use a bulk storage export.',409);
+     return response(backup);
+   }catch(e){
+     console.error('Forum backup failed:',e?.message||'Unknown');
+     return fail('Forum backup is temporarily unavailable.',503);
+   }
+ }
  if(!UUID.test(topicId||''))return fail('Invalid discussion ID.');
  if(!['delete-topic','delete-reply'].includes(action))return fail('Unknown action.');
  if(action==='delete-reply'&&!UUID.test(replyId||''))return fail('Invalid reply ID.');
