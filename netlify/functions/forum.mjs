@@ -9,7 +9,8 @@ import { randomUUID } from 'node:crypto';
 const CATEGORIES = new Set(['general', 'eve-guides']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const postingEnabled = () => process.env.FORUM_POSTING_ENABLED === 'true' &&
-  Boolean(process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY);
+  Boolean(process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY &&
+    process.env.FORUM_ADMIN_TOKEN?.length >= 32);
 const json = (obj, status=200) => new Response(JSON.stringify(obj), {
   status, headers:{'content-type':'application/json; charset=utf-8',
                    'cache-control':'no-store','x-content-type-options':'nosniff'}
