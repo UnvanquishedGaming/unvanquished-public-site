@@ -3,13 +3,14 @@
  * Production data persists across deploys; preview data is isolated to its deploy.
  * Public reads. Writing is off unless TURNSTILE and FORUM_POSTING_ENABLED are configured.
  */
-import { getStore, getDeployStore } from '@netlify/blobs';
+import { getStore } from '@netlify/blobs';
 import { randomUUID } from 'node:crypto';
 
 const CATEGORIES = new Set(['general', 'eve-guides']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const postingEnabled = () => process.env.FORUM_POSTING_ENABLED === 'true' &&
-  Boolean(process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY);
+  Boolean(process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY &&
+    process.env.FORUM_ADMIN_TOKEN?.length >= 32);
 const json = (obj, status=200) => new Response(JSON.stringify(obj), {
   status, headers:{'content-type':'application/json; charset=utf-8',
                    'cache-control':'no-store','x-content-type-options':'nosniff'}
@@ -17,9 +18,11 @@ const json = (obj, status=200) => new Response(JSON.stringify(obj), {
 const fail = (message,status=400)=>json({error:message},status);
 const clean = v => typeof v==='string' ? v.trim() : '';
 function store() {
-  return process.env.CONTEXT === 'production'
-    ? getStore({name:'community-forum-v1',consistency:'strong'})
-    : getDeployStore({name:'community-forum-preview-v1',consistency:'strong'});
+  // Preview content survives redeploys without sharing any store with production.
+  const name = process.env.CONTEXT === 'production'
+    ? 'community-forum-v1'
+    : 'community-forum-preview-v2';
+  return getStore({name, consistency:'strong'});
 }
 async function listObjects(blobs, prefix, max) {
   const listing = await blobs.list({prefix});
@@ -27,6 +30,14 @@ async function listObjects(blobs, prefix, max) {
   const records = await Promise.all(listing.blobs.map(entry=>
     blobs.get(entry.key,{type:'json',consistency:'strong'})));
   return records.filter(Boolean);
+}
+async function findTopic(blobs, id) {
+  // Use the same store and lookup rules for topic reads and replies.
+  const direct = await blobs.get('topic/'+id,{type:'json',consistency:'strong'});
+  if (direct?.kind==='topic' && direct.id===id) return direct;
+  // Defensive fallback for entries whose blob key and record ID differ.
+  const indexed = await listObjects(blobs,'topic/',400);
+  return indexed.find(t=>t?.kind==='topic' && t.id===id) || null;
 }
 function goodText(s,min,max) {
   return s.length>=min && s.length<=max && !/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(s);
@@ -57,7 +68,7 @@ export default async function handler(request) {
       const topicId=uri.searchParams.get('topic');
       if(topicId){
         if(!UUID.test(topicId))return fail('Invalid topic ID.');
-        const topic=await blobs.get('topic/'+topicId,{type:'json',consistency:'strong'});
+        const topic=await findTopic(blobs,topicId);
         if(!topic)return fail('Discussion not found.',404);
         const replies=(await listObjects(blobs,'reply/'+topicId+'/',250))
           .filter(p=>p.kind==='reply' && p.topicId===topicId)
@@ -92,7 +103,7 @@ export default async function handler(request) {
     }else{
       const topicId=clean(payload.topicId);
       if(!UUID.test(topicId))return fail('Invalid discussion ID.');
-      parent=await blobs.get('topic/'+topicId,{type:'json',consistency:'strong'});
+      parent=await findTopic(blobs,topicId);
       if(!parent)return fail('Discussion not found.',404);
     }
     if(!await verifyTurnstile(clean(payload.token),request))
