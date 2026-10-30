@@ -52,10 +52,20 @@ async function openTopic(id){
  }catch(e){note(e.message);$('#forum-thread').replaceChildren(empty('DISCUSSION UNAVAILABLE','Please try again.'));}
 }
 function composer(mode){
- if(!state.posting)return;state.mode=mode;$('#forum-form').reset();$('#forum-form-error').hidden=true;
- $('#forum-topic-inputs').hidden=mode==='reply';$('#forum-form-title').textContent=mode==='reply'?'POST REPLY':'NEW DISCUSSION';
- $('#forum-submit').textContent=mode==='reply'?'POST REPLY':'POST DISCUSSION';
- if(mode==='topic')$('#forum-category').value=state.filter==='eve-guides'?'eve-guides':'general';
+ if(!state.posting)return;
+ if(mode==='reply' && !state.topic){note('Open a discussion before replying.');return;}
+ state.mode=mode;$('#forum-form').reset();$('#forum-form-error').hidden=true;
+ const isReply=mode==='reply';
+ const topicInputs=$('#forum-topic-inputs');
+ // A hidden required title input blocks the browser's native submit event.
+ // Disable and unrequire topic-only controls while composing a reply.
+ topicInputs.hidden=isReply;
+ $('#forum-title').disabled=isReply;
+ $('#forum-title').required=!isReply;
+ $('#forum-category').disabled=isReply;
+ $('#forum-form-title').textContent=isReply?'POST REPLY':'NEW DISCUSSION';
+ $('#forum-submit').textContent=isReply?'POST REPLY':'POST DISCUSSION';
+ if(!isReply)$('#forum-category').value=state.filter==='eve-guides'?'eve-guides':'general';
  if(window.turnstile&&state.widget!==null)window.turnstile.reset(state.widget);
  $('#forum-dialog').showModal();
 }
