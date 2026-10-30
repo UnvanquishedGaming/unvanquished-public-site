@@ -2,7 +2,7 @@
  * Owner-only moderation actions for The Unvanquished forum.
  * All credentials are server-side environment variables; no public admin API reads.
  */
-import {getStore,getDeployStore} from '@netlify/blobs';
+import {getStore} from '@netlify/blobs';
 import {createHash,timingSafeEqual} from 'node:crypto';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -21,9 +21,8 @@ function authorized(request){
  return timingSafeEqual(hash(supplied),hash(expected));
 }
 function store(){
- return process.env.CONTEXT==='production'
- ?getStore({name:'community-forum-v1',consistency:'strong'})
- :getDeployStore({name:'community-forum-preview-v1',consistency:'strong'});
+ return getStore({name:process.env.CONTEXT==='production'
+ ?'community-forum-v1':'community-forum-preview-v2',consistency:'strong'});
 }
 export default async function handler(request){
  if(request.method!=='POST')return fail('Method not allowed.',405);
