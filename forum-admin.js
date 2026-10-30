@@ -61,6 +61,25 @@ $('#mod-login').onsubmit=async e=>{
  }catch(e){status(e.message);$('#mod-login').hidden=false;$('#mod-controls').hidden=true;key='';}
 };
 $('#mod-lock').onclick=()=>{key='';current=null;$('#mod-controls').hidden=true;$('#mod-login').hidden=false;status('Moderation locked.');};
+$('#mod-backup').onclick=async()=>{
+ const btn=$('#mod-backup');btn.disabled=true;status('Preparing backup...');
+ try{
+  const r=await fetch('/api/forum-admin',{method:'POST',headers:{
+   'content-type':'application/json',authorization:'Bearer '+key},
+   body:JSON.stringify({action:'export'}),cache:'no-store'});
+  const body=await r.json();
+  if(!r.ok)throw Error(body.error||'Backup unavailable');
+  if(body.schema!=='unvanquished-forum-v1'||!Array.isArray(body.topics)||!Array.isArray(body.replies))throw Error('Unexpected backup data.');
+  const blob=new Blob([JSON.stringify(body,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');link.href=url;
+  link.download='unvanquished-forums-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.append(link);link.click();link.remove();
+  URL.revokeObjectURL(url);
+  status('Backup prepared: '+body.topics.length+' topics and '+body.replies.length+' replies. Store the file securely.');
+ }catch(err){status(err.message);}
+ finally{btn.disabled=false;}
+};
 $('#mod-refresh').onclick=()=>refresh().catch(e=>status(e.message));
 $('#mod-back').onclick=()=>{current=null;$('#mod-thread').hidden=true;$('#mod-topics').hidden=false;};
 })();
