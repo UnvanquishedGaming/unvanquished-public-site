@@ -38,4 +38,7 @@ On `https://deploy-preview-3--unvanquished.netlify.app/forums`, verify:
 5. Log into `/forum-admin.html`, delete the test reply, then delete the test topic.
 6. Confirm the public production site still has posting disabled.
 
-Never paste Turnstile secrets or moderator credentials into GitHub, code, screenshots, or support requests. Preview records are per-deploy; they may not survive a new preview deployment.
+Never paste Turnstile secrets or moderator credentials into GitHub, code, screenshots, or support requests. Preview forum records use a dedicated persistent preview-only store; a new deployment should retain them.
+
+## Moderator token reset
+If `FORUM_ADMIN_TOKEN` is replaced under Netlify's **Deploy Previews** context, the existing deployed Function may still hold the old value. Netlify requires a new deployment before the reset takes effect. After the new Deploy Preview is published, enter exactly the new saved key into the moderation page. Keep this credential in a password manager; never paste it in issues, chat, or screenshots.
