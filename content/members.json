@@ -1,0 +1,25 @@
+{
+  "profiles": [
+    {
+      "tier": "ceo",
+      "sortOrder": 0,
+      "eveName": "Jonkkonen Togenada",
+      "approvedForPublicSite": true,
+      "discordName": "Jonkkonen",
+      "introduction": "Jonkkonen (also known in EVE as XORyker) helped get The Unvanquished started. He enjoys mining and security missions, and is happy to try nearly anything besides PvP. Beyond gaming, he loves fishing, motorcycles, anime, and movies. What matters most to him is meeting members and sharing conversations about everything and nothing.",
+      "games": [
+        "American Truck Simulator",
+        "Motor Town",
+        "War Thunder",
+        "World of Warships",
+        "Once Human",
+        "Star Citizen",
+        "The Isle",
+        "Supermarket Together",
+        "PS4 games",
+        "Magic"
+      ],
+      "memory": "One of my favorite memories is getting the community started. It was such a wild and random chance, but it became a memory I will never forget. Nothing makes gaming more enjoyable than being able to talk about nothing and everything all in the same space."
+    }
+  ]
+}

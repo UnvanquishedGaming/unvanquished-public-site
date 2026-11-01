@@ -59,3 +59,19 @@
  .main-nav>a{font-size:21px;padding:7px}
  .main-nav>a.nav-cta{margin:10px 0 0;text-align:center}
 }
+
+/* Opt-in member directory: a clear hierarchy without changing the site's visual identity. */
+.member-directory{display:grid;gap:34px}
+.member-group[hidden]{display:none!important}
+.member-group>h3{font:900 clamp(29px,4vw,44px) var(--font-display);color:var(--gold);letter-spacing:.03em;margin:0 0 15px}
+.member-profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}
+.member-profile{border:1px solid #4c595f;background:linear-gradient(140deg,#1b252b,#11191d);padding:26px;min-width:0}
+.member-profile-featured{border-color:#c49c47;box-shadow:inset 0 4px 0 var(--gold);max-width:850px}
+.member-profile-rank,.member-profile-label{font:700 11px var(--font-mono);letter-spacing:.1em;color:var(--gold)}
+.member-profile-name{font:900 clamp(30px,3vw,42px) var(--font-display);margin:10px 0 4px;overflow-wrap:anywhere}
+.member-profile-discord{color:#bac4c6;font-size:14px;margin:0}
+.member-profile-intro{font-size:17px;margin:17px 0}
+.member-profile-detail{border-top:1px solid #3d4b50;padding-top:15px;margin-top:15px}
+.member-profile-detail p,.member-profile-memory{margin:7px 0 0;color:#d2d9d8;white-space:pre-wrap;overflow-wrap:anywhere}
+.member-profile-memory{border-left:3px solid #c49c47;padding-left:13px}
+@media(max-width:720px){.member-profile{padding:19px}.member-directory{gap:25px}}
