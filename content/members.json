@@ -4,7 +4,22 @@
       "tier": "ceo",
       "sortOrder": 0,
       "eveName": "Jonkkonen Togenada",
-      "approvedForPublicSite": true
+      "approvedForPublicSite": true,
+      "discordName": "Jonkkonen",
+      "introduction": "Jonkkonen helped get The Unvanquished started. What began as an unexpected chance became a lasting favorite memory. He values the conversations and friendships that bring the community together.",
+      "games": [
+        "American Truck Simulator",
+        "Motor Town",
+        "War Thunder",
+        "World of Warships",
+        "Once Human",
+        "Star Citizen",
+        "The Isle",
+        "Supermarket Together",
+        "PS4 games",
+        "Magic"
+      ],
+      "memory": "Helping start The Unvanquished community is a favorite memory he will never forget."
     }
   ]
 }
