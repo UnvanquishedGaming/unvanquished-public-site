@@ -24,8 +24,9 @@
   const header=document.createElement('div');header.className='member-profile-header';
   const rank=tier==='ceo'?'CEO':(tier==='leadership'?(entry.roleTitle||'Leadership'):'Community member');
   header.append(text('span',rank,'member-profile-rank'));
-  const title=text('h4',entry.eveName,'member-profile-name');
+  const title=text('h4',entry.displayName||entry.eveName,'member-profile-name');
   header.append(title);
+  if(entry.displayName && entry.displayName!==entry.eveName)header.append(text('p','EVE: '+entry.eveName,'member-profile-discord'));
   if(entry.discordName)header.append(text('p','Discord: '+entry.discordName,'member-profile-discord'));
   article.append(header);
   if(entry.introduction)article.append(text('p',entry.introduction,'member-profile-intro'));
@@ -39,6 +40,12 @@
    const section=document.createElement('div');section.className='member-profile-detail';
    section.append(text('span','FAVORITE UNVANQUISHED MEMORY','member-profile-label'));
    section.append(text('blockquote',entry.memory,'member-profile-memory'));
+   article.append(section);
+  }
+  if(entry.story){
+   const section=document.createElement('div');section.className='member-profile-detail';
+   section.append(text('span',entry.storyTitle||'THE STORY','member-profile-label'));
+   section.append(text('p',entry.story,'member-profile-memory'));
    article.append(section);
   }
   return article;
