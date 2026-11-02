@@ -18,38 +18,49 @@
   if(className)e.className=className;
   return e;
  };
+
  function profileCard(entry,tier){
   const article=document.createElement('article');
-  article.className='member-profile'+(tier==='ceo'?' member-profile-featured':'');
-  const header=document.createElement('div');header.className='member-profile-header';
-  const rank=tier==='ceo'?'CEO':(tier==='leadership'?(entry.roleTitle||'Leadership'):'Community member');
-  header.append(text('span',rank,'member-profile-rank'));
-  const title=text('h4',entry.displayName||entry.eveName,'member-profile-name');
-  header.append(title);
-  if(entry.displayName && entry.displayName!==entry.eveName)header.append(text('p','EVE: '+entry.eveName,'member-profile-discord'));
-  if(entry.discordName)header.append(text('p','Discord: '+entry.discordName,'member-profile-discord'));
+  article.className='member-profile';
+
+  const header=document.createElement('div');
+  header.className='member-profile-header';
+  const role=tier==='ceo'?'CEO':(tier==='leadership'?(entry.roleTitle||'Leadership'):'Community member');
+  header.append(text('span',role,'member-profile-rank'));
+  header.append(text('h4',entry.displayName||entry.eveName,'member-profile-name'));
+  const eveNames=Array.isArray(entry.eveCharacters)&&entry.eveCharacters.length
+   ? entry.eveCharacters.filter(n=>typeof n==='string'&&n.trim()).join(' · ')
+   : entry.eveName;
+  header.append(text('p','EVE: '+eveNames,'member-profile-meta'));
+  if(entry.discordName)header.append(text('p','Discord: '+entry.discordName,'member-profile-meta'));
   article.append(header);
-  if(entry.introduction)article.append(text('p',entry.introduction,'member-profile-intro'));
-  if(Array.isArray(entry.games) && entry.games.length){
-   const section=document.createElement('div');section.className='member-profile-detail';
-   section.append(text('span','OTHER GAMES','member-profile-label'));
-   section.append(text('p',entry.games.filter(x=>typeof x==='string'&&x.trim()).join(' · ')));
+
+  const makeSection=(label)=>{
+   const section=document.createElement('section');
+   section.className='member-profile-detail';
+   section.append(text('h5',label,'member-profile-label'));
    article.append(section);
-  }
-  if(entry.memory){
-   const section=document.createElement('div');section.className='member-profile-detail';
-   section.append(text('span','FAVORITE UNVANQUISHED MEMORY','member-profile-label'));
-   section.append(text('blockquote',entry.memory,'member-profile-memory'));
-   article.append(section);
-  }
+   return section;
+  };
+  const about=makeSection('ABOUT');
+  about.append(text('p',entry.introduction||'Introduction coming soon.','member-profile-intro'));
+  // Extra anecdotes remain inside ABOUT so every profile has the same primary sections.
   if(entry.story){
-   const section=document.createElement('div');section.className='member-profile-detail';
-   section.append(text('span',entry.storyTitle||'THE STORY','member-profile-label'));
-   section.append(text('p',entry.story,'member-profile-memory'));
-   article.append(section);
+   const paragraph=document.createElement('p');
+   paragraph.className='member-profile-anecdote';
+   paragraph.append(text('strong',(entry.storyTitle||'A community story')+': '));
+   paragraph.append(document.createTextNode(entry.story));
+   about.append(paragraph);
   }
+  const games=makeSection('OTHER GAMES');
+  const otherGames=Array.isArray(entry.games)
+   ? entry.games.filter(n=>typeof n==='string'&&n.trim()).join(' · ') : '';
+  games.append(text('p',otherGames||'Not listed.'));
+  const memory=makeSection('FAVORITE UNVANQUISHED MEMORY');
+  memory.append(text('blockquote',entry.memory||'Story coming soon.','member-profile-memory'));
   return article;
  }
+
  try{
   const response=await fetch('/content/members.json',{cache:'no-cache'});
   if(!response.ok)throw Error('Profiles unavailable');
