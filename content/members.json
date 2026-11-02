@@ -20,6 +20,28 @@
         "Magic"
       ],
       "memory": "One of my favorite memories is getting the community started. It was such a wild and random chance, but it became a memory I will never forget. Nothing makes gaming more enjoyable than being able to talk about nothing and everything all in the same space."
+    },
+    {
+      "tier": "member",
+      "sortOrder": 10,
+      "displayName": "Daddy",
+      "eveName": "Gamingdad42",
+      "discordName": "Daddy",
+      "introduction": "Known as Gamingdad42 in EVE Online and Daddy on Discord, he enjoys teaming up for PvP and PvE alike. He's here to have fun with friends, and can spend hours on Discord talking and laughing with the community. Outside gaming, he loves exploring the limits of AI and spending time with family.",
+      "games": [
+        "League of Legends",
+        "American Truck Simulator",
+        "Euro Truck Simulator 2",
+        "World of Warships",
+        "Total War series",
+        "X4: Foundations",
+        "Starfield",
+        "Star Citizen"
+      ],
+      "memory": "During a nullsec bomber-fleet training run, founder Maximus instructed everyone to bomb a stargate and warp away. The bombers launched and followed orders—then their fearless leader warped straight into the bombs and got vanquished himself.",
+      "storyTitle": "How I became Daddy",
+      "story": "When I first joined Discord, Maximus asked what everyone should call me. I replied, 'You can call me Daddy.' Everything went quiet, and I thought I'd messed up. I quickly said I was joking—just as Redeemer started laughing. Maximus said, 'Nope, you are now going to be known as Daddy.' Then the whole Discord started laughing, and the nickname stuck.",
+      "approvedForPublicSite": true
     }
   ]
 }
