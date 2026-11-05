@@ -59,6 +59,20 @@
       ],
       "memory": "Saying hi in Discord.",
       "approvedForPublicSite": true
+    },
+    {
+      "tier": "member",
+      "sortOrder": 30,
+      "eveName": "Brutis",
+      "discordName": "Brutis",
+      "introduction": "Brutis enjoys mission running, PvE, PvP, and mining. He also enjoys fishing, working on cars, and playing Dungeons & Dragons. What he values most about The Unvanquished is joking with friends and hearing their stories.",
+      "games": [
+        "World of Warcraft",
+        "MechWarrior 5",
+        "Sim racing"
+      ],
+      "memory": "Getting blown up together and having a great time laughing about it afterward.",
+      "approvedForPublicSite": true
     }
   ]
 }
