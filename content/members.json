@@ -73,6 +73,19 @@
       ],
       "memory": "Getting blown up together and having a great time laughing about it afterward.",
       "approvedForPublicSite": true
+    },
+    {
+      "tier": "member",
+      "sortOrder": 40,
+      "eveName": "Jonas Family",
+      "discordName": "Llew",
+      "introduction": "Jonas Family, known as Llew on Discord, enjoys the industrial side of EVE Online: mining and manufacturing. Outside New Eden, Llew plays World of Warships and survival games, generally diving into one game at a time. Away from gaming, fishing and watching rugby are favorite pastimes. What makes The Unvanquished special is the sense of family.",
+      "games": [
+        "World of Warships",
+        "Survival games"
+      ],
+      "memory": "The madness of the first weeks of learning EVE and starting this corp.",
+      "approvedForPublicSite": true
     }
   ]
 }
